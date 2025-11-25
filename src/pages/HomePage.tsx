@@ -3,19 +3,22 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Heart, Users, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import LanguageSelector from '@/components/LanguageSelector';
 
 const HomePage = () => {
   const { t, language } = useLanguage();
 
   return (
-    <Layout
-      title={t({ english: 'Home', marathi: 'मुख्यपृष्ठ' })}
-      description={t({
-        english: 'AA is an International Fellowship of more than 2 million recovering alcoholics throughout the world.',
-        marathi: "'अल्कोहोलिक्स ॲनॉनिमस' ही 'मद्यपाश' या आजाराने पीडीत स्त्री पुरूषांची एक जागतिक संघटना आहे."
-      })}
-    >
-      {/* Hero Section */}
+    <>
+      <LanguageSelector />
+      <Layout
+        title={t({ english: 'Home', marathi: 'मुख्यपृष्ठ' })}
+        description={t({
+          english: 'AA is an International Fellowship of more than 2 million recovering alcoholics throughout the world.',
+          marathi: "'अल्कोहोलिक्स ॲनॉनिमस' ही 'मद्यपाश' या आजाराने पीडीत स्त्री पुरूषांची एक जागतिक संघटना आहे."
+        })}
+      >
+        {/* Hero Section */}
       <section className="aa-gradient-trust text-white py-16 md:py-24">
         <div className="aa-container text-center space-y-6 animate-fade-in">
           <img 
@@ -346,7 +349,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-    </Layout>
+      </Layout>
+    </>
   );
 };
 
