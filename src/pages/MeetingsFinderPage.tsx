@@ -3,11 +3,22 @@ import Layout from '@/components/layout/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Clock, Phone } from 'lucide-react';
+import Papa from 'papaparse';
 
 interface Meeting {
   ID: string;
+  StateEnglish: string;
+  StateMarathi: string;
   DistrictEnglish: string;
   DistrictMarathi: string;
+  DistrictCommetteNameEnglish: string;
+  DistrictCommetteNameMarathi: string;
+  DistrictCommetteAddressEnglish: string;
+  DistrictCommetteAddressMarathi: string;
+  DistrictCommetteHelpLineEnglish: string;
+  DistrictCommetteHelpLineMarathi: string;
+  DistrictCommetteContactEnglish: string;
+  DistrictCommetteContactMarathi: string;
   TalukaEnglish: string;
   TalukaMarathi: string;
   MeetingNameEnglish: string;
@@ -18,6 +29,11 @@ interface Meeting {
   MeetingTimeMarathi: string;
   MeetingContactEnglish: string;
   MeetingContactMarathi: string;
+  CreatedDate: string;
+  Createdby: string;
+  ModifiedDate: string;
+  Modifiedby: string;
+  Comments: string;
   isActive: string;
 }
 
@@ -28,39 +44,40 @@ const MeetingsFinderPage = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [filteredMeetings, setFilteredMeetings] = useState<Meeting[]>([]);
 
-  const districts = [
-    { english: 'Beed', marathi: 'बीड' },
-    { english: 'Hingoli', marathi: 'हिंगोली' },
-    { english: 'Latur', marathi: 'लातूर' },
-    { english: 'Nanded', marathi: 'नांदेड' },
-    { english: 'Osmanabad', marathi: 'उस्मानाबाद' },
-    { english: 'Parbhani', marathi: 'परभणी' }
-  ];
+  const [districts, setDistricts] = useState<{ english: string; marathi: string }[]>([]);
 
   useEffect(() => {
-    // TODO: Load CSV data here
-    // For now, using sample data
-    const sampleMeetings: Meeting[] = [
-      {
-        ID: '1',
-        DistrictEnglish: 'Latur',
-        DistrictMarathi: 'लातूर',
-        TalukaEnglish: 'Latur',
-        TalukaMarathi: 'लातूर',
-        MeetingNameEnglish: 'Latur Monday Meeting',
-        MeetingNameMarathi: 'लातूर सोमवार मीटिंग',
-        MeetingAddressEnglish: 'Shivaji Nagar, Latur',
-        MeetingAddressMarathi: 'शिवाजी नगर, लातूर',
-        MeetingTimeEnglish: 'Monday 7:00 PM',
-        MeetingTimeMarathi: 'सोमवार संध्याकाळी ७:०० वाजता',
-        MeetingContactEnglish: '9420094243',
-        MeetingContactMarathi: '९४२००९४२४३',
-        isActive: 'Yes'
-      },
-      // Add more sample meetings as needed
-    ];
-    setMeetings(sampleMeetings);
-    setFilteredMeetings(sampleMeetings);
+    fetch('/data/aameetingsinmaharashtra.csv')
+      .then(response => response.text())
+      .then(csvText => {
+        Papa.parse<Meeting>(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const allMeetings = results.data.filter(m => 
+              m.isActive === 'Yes' && m.MeetingNameEnglish && m.MeetingNameEnglish.trim() !== ''
+            );
+            setMeetings(allMeetings);
+            setFilteredMeetings(allMeetings);
+            
+            // Extract unique districts
+            const uniqueDistricts = new Map<string, { english: string; marathi: string }>();
+            allMeetings.forEach(m => {
+              if (m.DistrictEnglish && !uniqueDistricts.has(m.DistrictEnglish)) {
+                uniqueDistricts.set(m.DistrictEnglish, {
+                  english: m.DistrictEnglish,
+                  marathi: m.DistrictMarathi
+                });
+              }
+            });
+            const sortedDistricts = Array.from(uniqueDistricts.values()).sort((a, b) => 
+              a.english.localeCompare(b.english)
+            );
+            setDistricts(sortedDistricts);
+          }
+        });
+      })
+      .catch(error => console.error('Error loading CSV:', error));
   }, []);
 
   useEffect(() => {

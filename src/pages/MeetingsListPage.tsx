@@ -2,10 +2,22 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import Papa from 'papaparse';
+
+interface Meeting {
+  ID: string;
+  DistrictEnglish: string;
+  DistrictMarathi: string;
+  TalukaEnglish: string;
+  TalukaMarathi: string;
+  MeetingNameEnglish: string;
+  MeetingNameMarathi: string;
+  isActive: string;
+}
 
 interface MeetingStats {
   district: { english: string; marathi: string };
-  talukas: { [key: string]: number };
+  talukas: { [key: string]: { english: string; marathi: string; count: number } };
   total: number;
 }
 
@@ -15,30 +27,57 @@ const MeetingsListPage = () => {
   const [stats, setStats] = useState<MeetingStats[]>([]);
 
   useEffect(() => {
-    // TODO: Calculate stats from CSV data
-    // Sample data for now
-    const sampleStats: MeetingStats[] = [
-      {
-        district: { english: 'Beed', marathi: 'बीड' },
-        talukas: {
-          'Beed': 2,
-          'Ashti': 1,
-          'Georai': 1
-        },
-        total: 4
-      },
-      {
-        district: { english: 'Latur', marathi: 'लातूर' },
-        talukas: {
-          'Latur': 3,
-          'Nilanga': 1,
-          'Ausa': 1
-        },
-        total: 5
-      },
-      // Add more districts
-    ];
-    setStats(sampleStats);
+    fetch('/data/aameetingsinmaharashtra.csv')
+      .then(response => response.text())
+      .then(csvText => {
+        Papa.parse<Meeting>(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const activeMeetings = results.data.filter(m => 
+              m.isActive === 'Yes' && m.MeetingNameEnglish && m.MeetingNameEnglish.trim() !== ''
+            );
+            
+            // Group by district
+            const districtMap = new Map<string, MeetingStats>();
+            
+            activeMeetings.forEach(meeting => {
+              const districtKey = meeting.DistrictEnglish;
+              
+              if (!districtMap.has(districtKey)) {
+                districtMap.set(districtKey, {
+                  district: {
+                    english: meeting.DistrictEnglish,
+                    marathi: meeting.DistrictMarathi
+                  },
+                  talukas: {},
+                  total: 0
+                });
+              }
+              
+              const districtStats = districtMap.get(districtKey)!;
+              districtStats.total++;
+              
+              const talukaKey = meeting.TalukaEnglish;
+              if (!districtStats.talukas[talukaKey]) {
+                districtStats.talukas[talukaKey] = {
+                  english: meeting.TalukaEnglish,
+                  marathi: meeting.TalukaMarathi,
+                  count: 0
+                };
+              }
+              districtStats.talukas[talukaKey].count++;
+            });
+            
+            const sortedStats = Array.from(districtMap.values()).sort((a, b) =>
+              a.district.english.localeCompare(b.district.english)
+            );
+            
+            setStats(sortedStats);
+          }
+        });
+      })
+      .catch(error => console.error('Error loading CSV:', error));
   }, []);
 
   const toggleDistrict = (district: string) => {
@@ -128,15 +167,17 @@ const MeetingsListPage = () => {
                                   <h4 className="font-semibold text-aa-navy mb-3">
                                     {t({ english: 'Talukas:', marathi: 'तालुके:' })}
                                   </h4>
-                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    {Object.entries(stat.talukas).map(([taluka, count]) => (
+                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {Object.entries(stat.talukas).map(([talukaKey, talukaData]) => (
                                       <div
-                                        key={taluka}
+                                        key={talukaKey}
                                         className="flex items-center justify-between bg-white rounded-lg px-4 py-3 shadow-sm"
                                       >
-                                        <span className="text-sm font-medium">{taluka}</span>
+                                        <span className="text-sm font-medium">
+                                          {language === 'english' ? talukaData.english : talukaData.marathi}
+                                        </span>
                                         <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-aa-orange/10 text-aa-orange text-sm font-semibold">
-                                          {count}
+                                          {talukaData.count}
                                         </span>
                                       </div>
                                     ))}
