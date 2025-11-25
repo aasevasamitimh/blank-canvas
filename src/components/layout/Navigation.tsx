@@ -48,7 +48,7 @@ const Navigation = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
               <img 
-                src="/english/images/ektalogo.png" 
+                src="/images/ektalogo.png"
                 alt="AA Ekta Logo" 
                 className="h-12 md:h-16 transition-transform duration-300 group-hover:scale-105"
               />

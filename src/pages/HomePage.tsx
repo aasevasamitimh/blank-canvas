@@ -22,7 +22,7 @@ const HomePage = () => {
       <section className="aa-gradient-trust text-white py-16 md:py-24">
         <div className="aa-container text-center space-y-6 animate-fade-in">
           <img 
-            src={language === 'english' ? '/english/images/aalogo-en.png' : '/marathi/images/aalogo.png'}
+            src="/images/aalogo.png"
             alt="AA Logo" 
             className="mx-auto h-24 md:h-32"
           />
