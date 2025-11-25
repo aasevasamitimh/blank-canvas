@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Calming Color Palette - HSL */
+    --aa-navy: 214 52% 25%;        /* Deep navy (trust) */
+    --aa-teal: 174 46% 45%;        /* Teal (healing) */
+    --aa-mint: 160 41% 85%;        /* Soft mint (peace) */
+    --aa-orange: 32 100% 50%;      /* Warm orange (hope) */
+    --aa-navy-dark: 214 52% 15%;   /* Darker navy */
+    --aa-teal-light: 174 46% 65%;  /* Lighter teal */
+    
+    /* Semantic Colors */
+    --background: 0 0% 100%;
+    --foreground: 214 52% 20%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 214 52% 20%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 52% 20%;
+    
+    --primary: 214 52% 25%;        /* Navy */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 174 46% 45%;      /* Teal */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 160 41% 95%;
+    --muted-foreground: 214 30% 40%;
+    
+    --accent: 32 100% 50%;         /* Orange */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 160 20% 85%;
+    --input: 160 20% 85%;
+    --ring: 214 52% 25%;
+    
+    --radius: 0.5rem;
+    
+    /* Custom gradients */
+    --gradient-healing: linear-gradient(135deg, hsl(var(--aa-teal)), hsl(var(--aa-mint)));
+    --gradient-trust: linear-gradient(135deg, hsl(var(--aa-navy)), hsl(var(--aa-teal)));
+    --gradient-hope: linear-gradient(135deg, hsl(var(--aa-orange)), hsl(var(--aa-teal)));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .aa-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .aa-helpline {
+    @apply fixed top-20 right-4 z-50 bg-[hsl(var(--aa-navy))] text-white px-6 py-3 rounded-b-2xl shadow-lg hover:bg-[hsl(var(--aa-navy-dark))] transition-colors;
+  }
+  
+  .aa-section {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  .aa-card {
+    @apply bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow;
+  }
+  
+  .aa-gradient-healing {
+    background: var(--gradient-healing);
+  }
+  
+  .aa-gradient-trust {
+    background: var(--gradient-trust);
+  }
+  
+  .aa-gradient-hope {
+    background: var(--gradient-hope);
+  }
+}
